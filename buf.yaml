@@ -1,7 +1,7 @@
 version: v2
-name: codeberg.org/reckon-db-org/reckon-proto
 modules:
   - path: proto
+    name: codeberg.org/reckon-db-org/reckon-proto
 breaking:
   use:
     - WIRE_JSON

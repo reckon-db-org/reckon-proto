@@ -18,9 +18,6 @@ service AdminService {
   // Get a summary of event types and their counts.
   rpc GetEventTypeSummary(EventTypeSummaryRequest) returns (EventTypeSummaryResponse);
 
-  // List all stores registered with the gateway.
-  rpc ListStores(ListStoresRequest) returns (ListStoresResponse);
-
   // ── Scavenging ──
 
   // Scavenge (compact) a stream by removing superseded events.
@@ -97,12 +94,6 @@ message EventTypeSummaryEntry {
 
 message EventTypeSummaryResponse {
   repeated EventTypeSummaryEntry entries = 1;
-}
-
-message ListStoresRequest {}
-
-message ListStoresResponse {
-  repeated string store_ids = 1;
 }
 
 // ──────────────────────────────────────────────
