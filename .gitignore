@@ -1,0 +1,3 @@
+# Generated artifacts — buf writes these into consumer repos, not here.
+gen/
+*.pb.go

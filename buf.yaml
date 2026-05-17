@@ -1,0 +1,17 @@
+version: v2
+name: codeberg.org/reckon-db-org/reckon-proto
+modules:
+  - path: proto
+breaking:
+  use:
+    - WIRE_JSON
+lint:
+  use:
+    - DEFAULT
+  except:
+    # Existing proto naming is snake_case file + flat layout, not the
+    # buf-recommended foo/bar/v1/baz.proto. Tolerated for now to keep
+    # this an extraction (zero behavioural change), revisit later.
+    - DIRECTORY_SAME_PACKAGE
+    - PACKAGE_DIRECTORY_MATCH
+    - PACKAGE_VERSION_SUFFIX
