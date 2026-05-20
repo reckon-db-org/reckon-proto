@@ -229,10 +229,15 @@ message GetCatalogueStatusResponse {
   int64 gateway_uptime_ms = 2;
 
   // Per-cluster connector status.
-  repeated ClusterStatus clusters = 3;
+  repeated CatalogueClusterStatus clusters = 3;
 }
 
-message ClusterStatus {
+// Status of a single cluster connector inside the catalogue. Distinct
+// from `ClusterStatus` (enum) in reckon_health.proto, which describes
+// raft-quorum verification outcomes; collapsing both onto the same
+// symbol would collide in the `reckon.gateway.v1` namespace and
+// break code generators that enforce single-definition (buf/protoc).
+message CatalogueClusterStatus {
   // Operator-assigned label from clusters.eterm.
   string cluster_id = 1;
 

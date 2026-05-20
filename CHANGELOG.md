@@ -5,6 +5,25 @@ All notable changes to `reckon-proto` will be documented in this file.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 Versioning: [SemVer](https://semver.org/) at the wire-contract level.
 
+## [0.3.1] - 2026-05-20
+
+### Fixed (breaking-on-wire-but-server-shape-stable) — rename `ClusterStatus` to `CatalogueClusterStatus` in `reckon_admin.proto`
+
+v0.3.0 introduced `message ClusterStatus` in `reckon_admin.proto`, but
+`reckon_health.proto` already defined `enum ClusterStatus` in the same
+`reckon.gateway.v1` namespace. Erlang's `gpb` compiler tolerates this
+(per-file module separation) so reckon-gateway builds fine, but `buf`
+and `protoc` reject it as a duplicate symbol — meaning every non-Erlang
+consumer (reckon-go and any future polyglot SDK) cannot regenerate
+stubs from v0.3.0.
+
+Rename the new message to `CatalogueClusterStatus` (more descriptive
+anyway — it describes catalogue connector status, not raft quorum).
+Field tags and shape unchanged; wire format identical for any client
+that maps the response into its own type. Erlang server-side code in
+`reckon_gateway_admin_service:cluster_to_proto/1` is shape-based and
+needs no edit (the on-the-wire bytes are the same).
+
 ## [0.3.0] - 2026-05-19
 
 ### Added — `AdminService` catalogue RPCs
