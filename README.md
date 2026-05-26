@@ -1,4 +1,5 @@
 # reckon-proto
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-support-yellow.svg)](https://buymeacoffee.com/rlefever)
 
 Canonical Protocol Buffer + gRPC definitions for the [ReckonDB](https://codeberg.org/reckon-db-org/reckon-db) event store, exposed via the [reckon-gateway](https://codeberg.org/reckon-db-org/reckon-gateway) gRPC frontend.
 
