@@ -5,6 +5,58 @@ All notable changes to `reckon-proto` will be documented in this file.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 Versioning: [SemVer](https://semver.org/) at the wire-contract level.
 
+## [0.4.0] - 2026-05-27
+
+### Added — DCB service for polyglot conditional-append
+
+New file `proto/reckon_dcb.proto` exposing the Dynamic Consistency
+Boundary primitive of ReckonDB (paired with reckon-db 3.1.1+,
+reckon-gater 2.3.1+) to gRPC clients.
+
+`DcbService`:
+
+- `AppendIfNoTagMatches(AppendIfNoTagMatchesRequest)` — conditional
+  append under the DCB pseudo-stream. Server rejects when any
+  event matching the request's `tag_filter` has seq strictly above
+  `seq_cutoff`. Returns a structured `oneof { Committed | Conflict }`
+  so the conflict path is a successful response shape, not a gRPC
+  error. gRPC status codes stay reserved for transport / backend
+  errors (`UNAVAILABLE`, `UNIMPLEMENTED`, `INTERNAL`).
+- `ReadDcbContext(ReadDcbContextRequest)` — read events matching a
+  `TagFilter` from the DCB pseudo-stream, ordered by seq ascending,
+  with the highest seq returned alongside. Use this to compute the
+  `seq_cutoff` for a subsequent `AppendIfNoTagMatches`.
+
+`TagFilter` is a recursive `oneof` with four variants:
+
+```protobuf
+message TagFilter {
+  oneof kind {
+    TagList    match_any   = 1;  // {any_of,  [Tag]}
+    TagList    match_all   = 2;  // {all_of,  [Tag]}
+    FilterList conjunction = 3;  // {and_,    [TagFilter]}
+    FilterList disjunction = 4;  // {or_,     [TagFilter]}
+  }
+}
+```
+
+Variant names avoid the `and_` / `or_` reserved-word collision in
+polyglot consumers while preserving the Erlang term mapping 1:1.
+
+`seq_cutoff` is `sint64` (ZigZag-encoded) so the `-1` "saw nothing"
+sentinel is a single byte on the wire.
+
+Pre-DCB backing clusters surface as gRPC `UNIMPLEMENTED`; the
+gateway does not carry a partial-support path.
+
+### Notes
+
+Additive only. Existing `StreamService`, `SubscriptionService`,
+etc., are untouched. Consumers regenerate bindings against 0.4.0
+to pick up the new service.
+
+Design doc: `reckon-gateway/plans/DESIGN_DCB_GRPC_SURFACE.md`.
+
 ## [0.3.1] - 2026-05-20
 
 ### Fixed (breaking-on-wire-but-server-shape-stable) — rename `ClusterStatus` to `CatalogueClusterStatus` in `reckon_admin.proto`
