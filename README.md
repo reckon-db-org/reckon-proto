@@ -18,6 +18,7 @@ This repo is the **single source of truth** for the wire contract. All language 
 | `CausationService` | Event-provenance DAG queries |
 | `AdminService` | Store inspection, scavenge, links |
 | `HealthService` | Standard gRPC health |
+| `DcbService` | Dynamic Consistency Boundary: tag-filter conditional append + context read *(0.4.0+)*. See [the DCB guide](https://codeberg.org/reckon-db-org/reckon-db/src/branch/main/guides/dcb.md). |
 
 All per-store services accept `store_id` in every request — the proto layer is multi-store-ready. Stores are emergent (declared by deployment, discovered via `StoresService`), not API-managed.
 
