@@ -15,7 +15,6 @@ This repo is the **single source of truth** for the wire contract. All language 
 | `SnapshotService` | Per-stream snapshot record/read/delete |
 | `SchemaService` | Schema registration + upcasting |
 | `TemporalService` | Time-travel reads |
-| `CausationService` | Event-provenance DAG queries |
 | `AdminService` | Store inspection, scavenge, links |
 | `HealthService` | Standard gRPC health |
 | `DcbService` | Dynamic Consistency Boundary: tag-filter conditional append + context read *(0.4.0+)*. See [the DCB guide](https://codeberg.org/reckon-db-org/reckon-db/src/branch/main/guides/dcb.md). |
@@ -32,7 +31,6 @@ proto/
 ├── reckon_snapshots.proto
 ├── reckon_schema.proto
 ├── reckon_temporal.proto
-├── reckon_causation.proto
 ├── reckon_admin.proto
 ├── reckon_health.proto
 └── reckon_shared.proto

@@ -5,6 +5,23 @@ All notable changes to `reckon-proto` will be documented in this file.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 Versioning: [SemVer](https://semver.org/) at the wire-contract level.
 
+## [0.5.0] - 2026-06-07
+
+### Removed — CausationService (BREAKING)
+
+Deleted `proto/reckon_causation.proto` (`CausationService` and its
+`Causation*` / `Correlation*` messages: `GetEffects`, `GetCause`,
+`GetCausationChain`, `GetCorrelated`, `BuildCausationGraph`).
+
+Causation/correlation lineage is **not an event-store concern**.
+`causation_id` and `correlation_id` remain exactly what they always
+were — opaque keys inside an event's `metadata` (see the note on
+`RecordedEvent.metadata` in `reckon_shared.proto`). The producer sets
+them; consumers that need to *traverse* lineage build a read model /
+projection (or ship it to tracing), the same way EventStoreDB serves
+causation via system projections rather than scanning the log. The
+store stores and returns metadata verbatim; it does not interpret it.
+
 ## [0.4.0] - 2026-05-27
 
 ### Added — DCB service for polyglot conditional-append
