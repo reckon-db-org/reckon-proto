@@ -5,6 +5,24 @@ All notable changes to `reckon-proto` will be documented in this file.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 Versioning: [SemVer](https://semver.org/) at the wire-contract level.
 
+## [0.6.1] - 2026-06-08
+
+### Added — reserved metadata-key contract (docs only, no wire change)
+
+Documented `causation_id` / `correlation_id` / `conversation_id` as the
+**reserved, cross-language metadata JSON keys** in `reckon_shared.proto`,
+pinning the Enterprise Integration Patterns correlation/causation
+identifiers at the wire-contract level so every client (BEAM/evoq, Go, …)
+agrees on the names. This comment block is the single source of truth from
+which each client library defines its constants.
+
+No message, field, or RPC change — `metadata` remains opaque JSON bytes.
+The keys are queried via the existing `StreamService.ReadByMetadata`; there
+is deliberately no server-side `get_effects`/`get_causes`/graph verb
+(lineage is a read-model concern, mirroring EventStoreDB's
+`$by_correlation_id` projection). Propagation is a producing-framework
+responsibility (evoq on BEAM); raw clients set the keys themselves.
+
 ## [0.6.0] - 2026-06-08
 
 ### Added — `StreamService.ReadByMetadata`

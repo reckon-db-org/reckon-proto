@@ -5,6 +5,41 @@ package reckon.gateway.v1;
 option go_package = "codeberg.org/reckon-db-org/reckon-go/genproto/gatewayv1;gatewayv1";
 
 // ──────────────────────────────────────────────
+// Reserved metadata keys (interop contract)
+// ──────────────────────────────────────────────
+//
+// Event `metadata` is opaque JSON. The following JSON object keys are
+// RESERVED with cross-language meaning, so every client (BEAM/evoq, Go,
+// .NET, …) agrees on them. They are the wire-level pinning of the
+// Enterprise Integration Patterns correlation/causation identifiers
+// (Hohpe & Woolf, 2004); this comment is the single source of truth for
+// the names, and every client library MUST define its constants from here.
+//
+//   "causation_id"   : event_id of the event/command that DIRECTLY caused
+//                      this event (EIP Causation Id). One hop.
+//   "correlation_id" : shared id grouping every event in one conversation;
+//                      copied forward unchanged across the chain
+//                      (EIP Correlation Id).
+//   "conversation_id": OPTIONAL higher-level, usually domain-specific
+//                      grouping that ties multiple correlations to one
+//                      conceptual operation (e.g. an order id). Advanced;
+//                      omit unless an app needs it.
+//
+// Querying: these are queried like any metadata field via
+// StreamService.ReadByMetadata(key, value), which is O(matches) when the
+// store declared the matching {meta, key} secondary index, else a scan.
+// There is deliberately NO server-side get_effects / get_causes / causation
+// graph verb — lineage assembly is a read-model / consumer concern (the
+// same stance EventStoreDB takes, where the graph is the $by_correlation_id
+// projection, not a core read).
+//
+// Populating: a producing FRAMEWORK owns propagation (causation = causing
+// message id, correlation copied forward). On BEAM that is evoq, which sets
+// these on dispatch. A raw polyglot client with no framework sets them
+// itself when appending. The storage engine never invents or interprets
+// them.
+
+// ──────────────────────────────────────────────
 // Core Event Types
 // ──────────────────────────────────────────────
 
@@ -19,7 +54,9 @@ message ProposedEvent {
   // Event payload as JSON bytes.
   bytes data = 3;
 
-  // Event metadata as JSON bytes (correlation_id, causation_id, etc.).
+  // Event metadata as JSON bytes. See "Reserved metadata keys" above for
+  // the cross-language causation_id / correlation_id / conversation_id
+  // convention.
   bytes metadata = 4;
 
   // Optional tags for cross-stream querying.
@@ -39,6 +76,8 @@ message RecordedEvent {
   string stream_id = 3;
   uint64 version = 4;
   bytes data = 5;
+  // Event metadata as JSON bytes. See "Reserved metadata keys" above
+  // (causation_id / correlation_id / conversation_id).
   bytes metadata = 6;
   repeated string tags = 7;
   int64 timestamp = 8;
