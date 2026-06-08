@@ -5,6 +5,32 @@ All notable changes to `reckon-proto` will be documented in this file.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 Versioning: [SemVer](https://semver.org/) at the wire-contract level.
 
+## [0.6.0] - 2026-06-08
+
+### Added — `StreamService.ReadByMetadata`
+
+New cross-cutting read RPC alongside `ReadByTags` / `ReadByEventTypes`:
+
+```proto
+rpc ReadByMetadata(ReadByMetadataRequest) returns (ReadStreamResponse);
+
+message ReadByMetadataRequest {
+  string store_id = 1;
+  string key = 2;
+  string value = 3;
+  uint64 batch_size = 4;
+}
+```
+
+Reads events whose metadata `key = value`. The sanctioned primitive for
+application-built causation/correlation read models — O(matches) when the
+store declared the `{meta, key}` secondary index (reckon-db 5.0.0+),
+otherwise a server-side scan. The store does not interpret the key.
+
+Additive and backward-compatible. Surfaces reckon-db 5.0.0 /
+reckon_gater 3.2.0 `read_by_metadata`. Downstream: reckon-gateway adds a
+handler; reckon-go regenerates stubs and adds a `ReadByMetadata` method.
+
 ## [0.5.0] - 2026-06-07
 
 ### Removed — CausationService (BREAKING)

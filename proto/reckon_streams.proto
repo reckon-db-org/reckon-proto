@@ -39,6 +39,15 @@ service StreamService {
   // Read events by tags across all streams.
   rpc ReadByTags(ReadByTagsRequest) returns (ReadStreamResponse);
 
+  // Read events by a metadata key=value pair across all streams.
+  //
+  // The sanctioned primitive for cross-cutting lookups by a metadata
+  // field (e.g. an application's causation_id / correlation_id read
+  // model). O(matches) when the store declared the {meta, key} secondary
+  // index; otherwise a server-side scan. The store does not interpret the
+  // key — lineage traversal is the caller's job.
+  rpc ReadByMetadata(ReadByMetadataRequest) returns (ReadStreamResponse);
+
   // Read all events globally, ordered by epoch_us.
   rpc ReadAllGlobal(ReadAllGlobalRequest) returns (ReadStreamResponse);
 }
@@ -89,6 +98,13 @@ message ReadByTagsRequest {
   string store_id = 1;
   repeated string tags = 2;
   TagMatch match = 3;
+  uint64 batch_size = 4;
+}
+
+message ReadByMetadataRequest {
+  string store_id = 1;
+  string key = 2;
+  string value = 3;
   uint64 batch_size = 4;
 }
 
