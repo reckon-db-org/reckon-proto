@@ -22,6 +22,7 @@ import "reckon_shared.proto";
 //
 // Requires backing ReckonDB cluster on reckon-db 3.1.1+
 // (reckon_gater 2.3.1+). Older backings surface UNIMPLEMENTED.
+// TagFilter.event_type_match requires reckon-db 5.2.0+.
 service DcbService {
 
   // Conditionally append events under the DCB pseudo-stream.
@@ -60,29 +61,36 @@ service DcbService {
 // TagFilter algebra
 // ──────────────────────────────────────────────
 
-// TagFilter is a recursive predicate over an event's tag set.
+// TagFilter is a recursive predicate over an event's tag set or type.
 //
-// Two leaf shapes (matching against the event's own tags) and two
-// compound shapes (combining sub-filters):
+// Three leaf shapes and two compound shapes:
 //
-//   match_any:    event matches if it carries ANY of the listed tags
-//   match_all:    event matches if it carries ALL of the listed tags
-//   conjunction:  event matches if ALL sub-filters match  (and_)
-//   disjunction:  event matches if ANY sub-filter matches (or_)
+//   match_any:         event matches if it carries ANY of the listed tags
+//   match_all:         event matches if it carries ALL of the listed tags
+//   event_type_match:  event matches if its event_type equals the value
+//   conjunction:       event matches if ALL sub-filters match  (and_)
+//   disjunction:       event matches if ANY sub-filter matches (or_)
 //
 // Names avoid the `and_`/`or_` reserved-word collisions while
 // preserving the Erlang term semantics one-to-one:
 //
-//   match_any   <-> {any_of,  [Tag]}
-//   match_all   <-> {all_of,  [Tag]}
-//   conjunction <-> {and_,    [TagFilter]}
-//   disjunction <-> {or_,     [TagFilter]}
+//   match_any         <-> {any_of,     [Tag]}
+//   match_all         <-> {all_of,     [Tag]}
+//   event_type_match  <-> {event_type, binary()}
+//   conjunction       <-> {and_,       [TagFilter]}
+//   disjunction       <-> {or_,        [TagFilter]}
+//
+// Requires backing ReckonDB 5.2.0+ for event_type_match (the
+// [by_event_type] index was added in that release). Older backings
+// will evaluate the filter correctly only for events written after
+// the upgrade; pre-5.2.0 events have no index entry.
 message TagFilter {
   oneof kind {
-    TagList    match_any   = 1;
-    TagList    match_all   = 2;
-    FilterList conjunction = 3;
-    FilterList disjunction = 4;
+    TagList    match_any         = 1;
+    TagList    match_all         = 2;
+    FilterList conjunction       = 3;
+    FilterList disjunction       = 4;
+    string     event_type_match  = 5;
   }
 }
 

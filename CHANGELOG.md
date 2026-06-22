@@ -5,6 +5,32 @@ All notable changes to `reckon-proto` will be documented in this file.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 Versioning: [SemVer](https://semver.org/) at the wire-contract level.
 
+## [0.7.0] - 2026-06-22
+
+### Added — `TagFilter.event_type_match` (field 5)
+
+`reckon_dcb.proto`: `TagFilter.oneof kind` gains a fifth leaf shape:
+
+```proto
+string event_type_match = 5;
+```
+
+Maps to `{event_type, binary()}` in `reckon_gater_types:tag_filter()`.
+
+Clients can now scope a DCB consistency context by event type rather than
+(or in addition to) tags, e.g.:
+
+```
+TagFilter { event_type_match: "inventory_reserved_v1" }
+```
+
+Backed by the `[by_event_type]` Khepri index added in reckon-db 5.2.0.
+Pre-5.2.0 events have no index entry and will not match.
+
+Wire-backwards-compatible: older clients that do not set field 5 see no
+change. Older servers (pre-5.2.0 gateway) will return a validation error
+for requests that set `event_type_match`.
+
 ## [0.6.1] - 2026-06-08
 
 ### Added — reserved metadata-key contract (docs only, no wire change)
