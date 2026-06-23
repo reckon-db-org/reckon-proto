@@ -5,6 +5,30 @@ All notable changes to `reckon-proto` will be documented in this file.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 Versioning: [SemVer](https://semver.org/) at the wire-contract level.
 
+## [0.8.0] - 2026-06-23
+
+### Added — `DcbService.CccReadByPayload` and `CccReadByPayloadHash`
+
+`reckon_dcb.proto`: two new RPCs added to `DcbService` for CCC
+(Command Context Consistency) payload-indexed reads.
+
+```proto
+rpc CccReadByPayload(CccReadByPayloadRequest) returns (CccReadByPayloadResponse);
+rpc CccReadByPayloadHash(CccReadByPayloadHashRequest) returns (CccReadByPayloadHashResponse);
+```
+
+New message types:
+
+- `CccReadByPayloadRequest` — `store_id`, `key`, `value`, `batch_size`
+- `CccReadByPayloadResponse` — `repeated RecordedEvent events`
+- `CccReadByPayloadHashRequest` — `store_id`, `repeated string keys`, `repeated string values`, `batch_size`
+- `CccReadByPayloadHashResponse` — `repeated RecordedEvent events`
+
+These are the gRPC equivalents of the HTTP endpoints added to reckon-gateway
+0.13.x. Use them to build a CCC consistency context over JSON payload field
+values rather than tags. Requires a matching `{ccc, key}` or
+`{ccc_hash, keys}` index declared in the store config and reckon-db 5.4.0+.
+
 ## [0.7.0] - 2026-06-22
 
 ### Added — `TagFilter.event_type_match` (field 5)

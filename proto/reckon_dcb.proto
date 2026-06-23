@@ -55,6 +55,27 @@ service DcbService {
   // AppendIfNoTagMatches with a forward read of the matching seqs,
   // scoped to the DCB pseudo-stream only.
   rpc ReadDcbContext(ReadDcbContextRequest) returns (ReadDcbContextResponse);
+
+  // CCC (Command Context Consistency) — payload-indexed reads.
+  //
+  // These RPCs use the store's CCC payload indexes (declared in
+  // store_config.indexes) to find events by JSON data field values,
+  // without tag matching. They are the read half of a CCC decision
+  // loop where the consistency predicate is over payload content
+  // rather than tags.
+  //
+  // Requires store-level index configuration and reckon-db 5.4.0+.
+
+  // CccReadByPayload returns events where data[key] == value across
+  // all streams in the store, ordered by position ascending.
+  // Requires a {ccc, key} index declared for the key.
+  rpc CccReadByPayload(CccReadByPayloadRequest) returns (CccReadByPayloadResponse);
+
+  // CccReadByPayloadHash returns events where the combination hash of
+  // data[keys[i]] == values[i] matches across all streams, ordered by
+  // position ascending. keys and values must be non-empty and equal
+  // length. Requires a {ccc_hash, keys} index declared for the key set.
+  rpc CccReadByPayloadHash(CccReadByPayloadHashRequest) returns (CccReadByPayloadHashResponse);
 }
 
 // ──────────────────────────────────────────────
@@ -176,4 +197,53 @@ message ReadDcbContextResponse {
   // use this as seq_cutoff in a subsequent AppendIfNoTagMatches.
   // Set to -1 (sint64) when the result set is empty.
   sint64 max_seq = 2;
+}
+
+// ──────────────────────────────────────────────
+// CccReadByPayload
+// ──────────────────────────────────────────────
+
+message CccReadByPayloadRequest {
+  string store_id = 1;
+
+  // JSON data field name to match against. Must be indexed via
+  // store_config.indexes [{ccc, key}].
+  string key = 2;
+
+  // Value the field must equal (string comparison after JSON decode).
+  string value = 3;
+
+  // Cap on returned events. Server may return fewer. 0 lets the
+  // server pick a sensible default.
+  uint64 batch_size = 4;
+}
+
+message CccReadByPayloadResponse {
+  // Events whose data[key] == value, ordered by position ascending.
+  repeated RecordedEvent events = 1;
+}
+
+// ──────────────────────────────────────────────
+// CccReadByPayloadHash
+// ──────────────────────────────────────────────
+
+message CccReadByPayloadHashRequest {
+  string store_id = 1;
+
+  // Field names to include in the combo hash. Order is significant
+  // and must match the index declaration in store_config.indexes
+  // [{ccc_hash, keys}].
+  repeated string keys = 2;
+
+  // Values the corresponding fields must equal. Must be the same
+  // length as keys.
+  repeated string values = 3;
+
+  // Cap on returned events. 0 lets the server pick a default.
+  uint64 batch_size = 4;
+}
+
+message CccReadByPayloadHashResponse {
+  // Events whose payload combo hash matches, ordered by position ascending.
+  repeated RecordedEvent events = 1;
 }
