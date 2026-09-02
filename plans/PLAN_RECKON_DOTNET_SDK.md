@@ -18,7 +18,7 @@ Thin typed façade over `reckon.gateway.v1`, exactly parallel to reckon-go:
 No Erlang, no framework port. Consumers `dotnet add package Reckon.Client` and
 get precompiled assemblies — they never touch protoc or buf.
 
-- New repo: `codeberg.org/reckon-db-org/reckon-dotnet`.
+- New repo: `github.com/reckon-db-org/reckon-dotnet`.
 - Package id `Reckon.Client`, root namespace `Reckon` (calls read
   `ReckonClient.Connect(...)`, matching Go's `reckon.Connect`).
 
@@ -233,7 +233,7 @@ builder.Services.AddReckonSubscription<OrderProjection>(store: "orders");
 
 ## 10. CI / release
 
-- CI via the Codeberg→GitHub mirror + Actions (same as reckon-go): `dotnet build`
+- CI via GitHub Actions (same as reckon-go): `dotnet build`
   + `dotnet test` + `dotnet pack`.
 - E2E gated behind a lab gateway env var, like reckon-go's e2e.
 - Version tracks the pinned reckon-proto tag (SemVer).

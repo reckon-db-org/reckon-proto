@@ -1,7 +1,7 @@
 # reckon-proto
 [![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-support-yellow.svg)](https://buymeacoffee.com/rlefever)
 
-Canonical Protocol Buffer + gRPC definitions for the [ReckonDB](https://codeberg.org/reckon-db-org/reckon-db) event store, exposed via the [reckon-gateway](https://codeberg.org/reckon-db-org/reckon-gateway) gRPC frontend.
+Canonical Protocol Buffer + gRPC definitions for the [ReckonDB](https://github.com/reckon-db-org/reckon-db) event store, exposed via the [reckon-gateway](https://github.com/reckon-db-org/reckon-gateway) gRPC frontend.
 
 This repo is the **single source of truth** for the wire contract. All language SDKs and the `reckon-gateway` server itself consume these proto files. Don't vendor them; depend on this repo at a pinned version.
 
@@ -31,7 +31,7 @@ Nine services across ten `.proto` files. Every RPC lives in package `reckon.gate
 - `ReadDcbContext`: read events matching a `TagFilter` from the DCB pseudo-stream, seq-ascending, with the highest observed seq returned alongside so the caller can compute the `seq_cutoff` for a follow-up append.
 - `CccReadByPayload` / `CccReadByPayloadHash`: CCC (Command Context Consistency) payload-indexed reads. They find events by JSON `data` field values (single key, or a combo hash over an ordered key set) using the store's CCC indexes, without tag matching. They are the read half of a CCC decision loop where the consistency predicate is over payload content rather than tags.
 
-`TagFilter` is a recursive predicate with three leaf shapes (`match_any`, `match_all`, `event_type_match`) and two compound shapes (`conjunction`, `disjunction`). The `event_type_match` leaf scopes a context by event type and is backed by the `[by_event_type]` Khepri index (reckon-db 5.2.0+). CCC payload reads require a `{ccc, key}` or `{ccc_hash, keys}` index declared in the store config (reckon-db 5.4.0+). Pre-DCB backing clusters surface as gRPC `UNIMPLEMENTED`. See [the DCB guide](https://codeberg.org/reckon-db-org/reckon-db/src/branch/main/guides/dcb.md).
+`TagFilter` is a recursive predicate with three leaf shapes (`match_any`, `match_all`, `event_type_match`) and two compound shapes (`conjunction`, `disjunction`). The `event_type_match` leaf scopes a context by event type and is backed by the `[by_event_type]` Khepri index (reckon-db 5.2.0+). CCC payload reads require a `{ccc, key}` or `{ccc_hash, keys}` index declared in the store config (reckon-db 5.4.0+). Pre-DCB backing clusters surface as gRPC `UNIMPLEMENTED`. See [the DCB guide](https://github.com/reckon-db-org/reckon-db/blob/main/guides/dcb.md).
 
 ### Shared messages
 
@@ -77,7 +77,7 @@ buf generate
 
 Currently shipping:
 
-- **Go**: [reckon-go](https://codeberg.org/reckon-db-org/reckon-go) (`genproto/gatewayv1`, separate repo)
+- **Go**: [reckon-go](https://github.com/reckon-db-org/reckon-go) (`genproto/gatewayv1`, separate repo)
 
 Coming as those SDKs land: TypeScript, Rust, C#, Kotlin.
 
@@ -100,14 +100,14 @@ SDKs and the gateway pin to a specific minor or higher (`~> 0.7`).
 reckon-proto is one library in the Reckon event-sourcing ecosystem. In dependency order (a library only knows about the ones above it):
 
 - **reckon-proto (this repo)**: the wire-contract protobufs; source of truth for the gateway surface. Consumed at build time by reckon-gateway and reckon-go.
-- **[reckon-gater](https://codeberg.org/reckon-db-org/reckon-gater)**: shared Erlang types and protocols; no Reckon dependencies.
-- **[reckon-db](https://codeberg.org/reckon-db-org/reckon-db)**: BEAM-native event store. Depends on reckon_gater, khepri, ra.
-- **[reckon-nifs](https://codeberg.org/reckon-db-org/reckon-nifs)**: standalone Rust NIF helpers with pure-Erlang fallbacks.
-- **[evoq](https://codeberg.org/reckon-db-org/evoq)**: standalone CQRS/event-sourcing framework; no Reckon dependencies.
-- **[reckon-evoq](https://codeberg.org/reckon-db-org/reckon-evoq)**: adapter wiring evoq to a Reckon store. Depends on evoq and reckon_gater; not on reckon_db.
-- **[reckon-gateway](https://codeberg.org/reckon-db-org/reckon-gateway)**: gRPC + HTTP/JSON ingress that serves this proto surface. Consumes reckon_gater; can embed reckon_db or federate remote clusters.
-- **[reckon-go](https://codeberg.org/reckon-db-org/reckon-go)**: the Go client generated against these protos; talks to reckon-gateway.
-- **reckon-portal**: docs and landing site ([reckon-internal/reckon-portal](https://codeberg.org/reckon-internal/reckon-portal)).
+- **[reckon-gater](https://github.com/reckon-db-org/reckon-gater)**: shared Erlang types and protocols; no Reckon dependencies.
+- **[reckon-db](https://github.com/reckon-db-org/reckon-db)**: BEAM-native event store. Depends on reckon_gater, khepri, ra.
+- **[reckon-nifs](https://github.com/reckon-db-org/reckon-nifs)**: standalone Rust NIF helpers with pure-Erlang fallbacks.
+- **[evoq](https://github.com/reckon-db-org/evoq)**: standalone CQRS/event-sourcing framework; no Reckon dependencies.
+- **[reckon-evoq](https://github.com/reckon-db-org/reckon-evoq)**: adapter wiring evoq to a Reckon store. Depends on evoq and reckon_gater; not on reckon_db.
+- **[reckon-gateway](https://github.com/reckon-db-org/reckon-gateway)**: gRPC + HTTP/JSON ingress that serves this proto surface. Consumes reckon_gater; can embed reckon_db or federate remote clusters.
+- **[reckon-go](https://github.com/reckon-db-org/reckon-go)**: the Go client generated against these protos; talks to reckon-gateway.
+- **reckon-portal**: docs and landing site ([reckon-internal/reckon-portal](https://github.com/reckon-db-org/reckon-portal)).
 
 ## License
 

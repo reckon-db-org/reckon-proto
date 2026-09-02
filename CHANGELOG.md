@@ -5,6 +5,23 @@ All notable changes to `reckon-proto` will be documented in this file.
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 Versioning: [SemVer](https://semver.org/) at the wire-contract level.
 
+## [0.8.1] - 2026-09-02
+
+### Changed — `go_package` moved to the GitHub module path
+
+Every `.proto` now declares
+`option go_package = "github.com/reckon-db-org/reckon-go/genproto/gatewayv1;gatewayv1"`
+(was `codeberg.org/...`), matching reckon-go's module path from its 0.10.0
+release. `buf.yaml`'s module name follows. No wire change: message and
+service definitions are identical to 0.8.0; only the embedded Go import
+path in the generated descriptors differs, so regenerate downstream stubs
+(reckon-go `genproto/`, reckon-py `_proto/`) from this tag.
+
+### Fixed
+
+- `src/reckon_proto.app.src` still said `0.7.0`; it now carries the
+  release version.
+
 ## [0.8.0] - 2026-06-23
 
 ### Added — `DcbService.CccReadByPayload` and `CccReadByPayloadHash`

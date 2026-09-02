@@ -6,13 +6,13 @@
      "git dep and point their grpc_plugin at proto/ in the fetched "
      "dep dir. Non-Erlang consumers (reckon-go, future SDKs) ignore "
      "the OTP metadata and pull from proto/ directly via buf."},
-    {vsn, "0.7.0"},
+    {vsn, "0.8.1"},
     {registered, []},
     {applications, [kernel, stdlib]},
     {env, []},
     {modules, []},
     {licenses, ["Apache-2.0"]},
     {links, [
-        {"Codeberg", "https://codeberg.org/reckon-db-org/reckon-proto"}
+        {"GitHub", "https://github.com/reckon-db-org/reckon-proto"}
     ]}
 ]}.
